@@ -8,3 +8,6 @@ Ref - [Benford's law](https://en.wikipedia.org/wiki/Benford%27s_law)
    `docker build --tag flask-benford-app .`
 
    `docker run --name flask-benford-app -p 5001:5001 flask-benford-app`
+
+### Downloading spacy model
+python -m spacy download en_core_web_sm
