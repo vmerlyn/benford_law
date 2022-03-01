@@ -164,5 +164,5 @@ cython_debug/
 # Built Visual Studio Code Extensions
 *.vsix
 
-.temp_data/*
+temp_data/**
 plot.png
