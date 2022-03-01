@@ -4,33 +4,45 @@ from ast import Assert
 
 from census_data import CensusData
 
-logger = logging.getLogger('dev')
+logger = logging.getLogger("dev")
 logger.setLevel(logging.DEBUG)
 consoleHandler = logging.StreamHandler()
 consoleHandler.setLevel(logging.DEBUG)
 logger.addHandler(consoleHandler)
 
-def test_process():
 
-    data_folder = os.path.join(os.path.join(os.getcwd(), 'tests'),'data')
-    data = CensusData(os.path.join(data_folder,'census_data'))
+def test_parsing():
+
+    data_folder = os.path.join(os.path.join(os.getcwd(), "tests"), "data")
+    data = CensusData(os.path.join(data_folder, "census_data"))
 
     data.parse()
 
     N = 32
 
-    #assert(len(parsed_data) == N)
+    assert len(data.good_data) == N
+    assert len(data.bad_data) == 0
 
     for item in data.good_data:
-        assert(len(item) == 6)
+        assert len(item) == CensusData.NCOL
 
-    #assert(data.good_data[13][0] == "W Virginia")
+    assert len(data.dataframe.loc[:, "7_2009"]) == N
 
-    for item in data.good_data:  
-        logger.debug(item)
 
-    for item in data.bad_data:
-        logger.debug(item)
+def test_counts():
+    data_folder = os.path.join(os.path.join(os.getcwd(), "tests"), "data")
+    data = CensusData(os.path.join(data_folder, "census_data"))
+    data.parse()
+    data.extractCounts()
 
-    assert(False)
-    
+    assert set(data.counts.values()).intersection([6, 9, 3, 4, 1, 0, 3, 4, 2])
+
+
+def test_benford_law():
+    data_folder = os.path.join(os.path.join(os.getcwd(), "tests"), "data")
+    data = CensusData(os.path.join(data_folder, "census_data"))
+    data.parse()
+    data.extractCounts()
+    is_valid, distances = data.is_following_bernofs_law()
+    logger.debug(distances)
+    assert is_valid is False
