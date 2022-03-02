@@ -1,11 +1,11 @@
 import base64
 import logging
+import multiprocessing
 import os
 from cmath import log10
 
 import matplotlib.pyplot as plt
 import pandas as pd
-import multiprocessing
 
 logger = logging.getLogger("dev")
 logger.setLevel(logging.DEBUG)
@@ -158,7 +158,6 @@ class CensusData:
         for digit in x_digits:
             y_frequency_2.append(log10(1 + (1 / digit)))
 
-        job_for_another_core = multiprocessing.Process(target=self.do_plot, args=(x_digits, y_frequency, y_frequency_2))
+        job_for_another_core = multiprocessing.Process(
+            target=self.do_plot, args=(x_digits, y_frequency, y_frequency_2))
         job_for_another_core.start()
-
-    
