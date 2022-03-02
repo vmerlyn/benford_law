@@ -5,6 +5,7 @@ from cmath import log10
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import multiprocessing
 
 logger = logging.getLogger("dev")
 logger.setLevel(logging.DEBUG)
@@ -86,7 +87,8 @@ class CensusData:
         """
         return threshold_counts[False] < 3, distances
 
-    def generate_html(self, embed_plot):
+    @staticmethod
+    def generate_html(embed_plot):
         pre = """
             <!doctype html>
                 <html>
@@ -129,6 +131,17 @@ class CensusData:
         file.writelines(post)
         file.close()
 
+    def do_plot(self, x_digits, y_frequency, y_frequency_2):
+        plt.figure(figsize=(10, 5))
+        plt.bar(x_digits, y_frequency, color="green", width=0.5)
+        plt.plot(x_digits, y_frequency_2, color="red")
+        plt.xlabel("Digits [1 to 9]")
+        plt.ylabel("Frequency [%]")
+        plt.title("Most Significant Digit distribution")
+        plt.legend(['Benford\'s Law', os.path.basename(self.file_to_read)])
+        plt.savefig("plot.png")
+        self.generate_html(True)
+
     def generate_plot(self):
         if self.parse_done is False:
             self.parse()
@@ -145,12 +158,7 @@ class CensusData:
         for digit in x_digits:
             y_frequency_2.append(log10(1 + (1 / digit)))
 
-        plt.figure(figsize=(10, 5))
-        plt.bar(x_digits, y_frequency, color="green", width=0.5)
-        plt.plot(x_digits, y_frequency_2, color="red")
-        plt.xlabel("Digits [1 to 9]")
-        plt.ylabel("Frequency [%]")
-        plt.title("Most Significant Digit distribution")
-        plt.legend(['Benford\'s Law', os.path.basename(self.file_to_read)])
-        plt.savefig("plot.png")
-        self.generate_html(True)
+        job_for_another_core = multiprocessing.Process(target=self.do_plot, args=(x_digits, y_frequency, y_frequency_2))
+        job_for_another_core.start()
+
+    
