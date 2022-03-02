@@ -24,7 +24,7 @@ def test_parsing():
     assert len(data.bad_data) == 0
 
     for item in data.good_data:
-        assert len(item) == CensusData.NCOL
+        assert len(item) == CensusData.NUMBER_OF_COLUMNS
 
     assert len(data.dataframe.loc[:, "7_2009"]) == N
 
