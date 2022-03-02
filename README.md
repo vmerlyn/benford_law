@@ -5,6 +5,5 @@ Ref - [Benford's law](https://en.wikipedia.org/wiki/Benford%27s_law)
 
 
 ## Running the app
-   `docker build --tag flask-benford-app .`
-
-   `docker run --name flask-benford-app -p 5001:5001 flask-benford-app`
+  1. `docker build --tag flask-benford-app .`
+  2. `docker run --name flask-benford-app -p 5001:5001 flask-benford-app`
