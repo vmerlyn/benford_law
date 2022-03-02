@@ -20,6 +20,8 @@ def upload_file():
         uploaded_file.save(destination_file)
         data = CensusData(destination_file)
         data.generate_plot()
+    else:
+        CensusData.generate_html(False)
 
     return redirect(url_for("index"))
 
