@@ -15,7 +15,7 @@ logger.addHandler(consoleHandler)
 
 
 class CensusData:
-    """Class to parse and display the distribution of an input column of numbers, 
+    """Class to parse and display the distribution of an input column of numbers,
     to verify if the data confirms to the Bernoff's law.
     """
     NUMBER_OF_COLUMNS = 6
@@ -27,6 +27,9 @@ class CensusData:
 
     def parse(self):
         """Parses the input Census data file and populates a pandas dataframe.
+
+        Returns:
+            Boolean: True if parsed without errors.
         """
         n = 0
         self.good_data = []
@@ -39,6 +42,8 @@ class CensusData:
                 n = n + 1
                 if n == 1:
                     header_columns = line.split("\t")
+                    if(len(header_columns) != self.NUMBER_OF_COLUMNS):
+                        return False
                     continue
 
                 single_line = line.split("\t")
@@ -52,6 +57,7 @@ class CensusData:
 
         self.dataframe = pd.DataFrame(self.good_data, columns=header_columns)
         self.parse_done = True
+        return self.parse_done
 
     def extractCounts(self):
         """Builds a dictionary of counts for each of the 1 through 9, most significant
@@ -65,7 +71,7 @@ class CensusData:
                     int(item[index]), 0) + 1
 
     def is_following_bernofs_law(self):
-        """Return True if ~80% of the given values are closer than a euclidean 
+        """Return True if ~80% of the given values are closer than a euclidean
         distance of .05"""
 
         x_digits = list(self.counts.keys())
@@ -177,8 +183,10 @@ class CensusData:
         Second one is a reference distribution that follows Bernof's theory.
         """
         if self.parse_done is False:
-            self.parse()
-            self.extractCounts()
+            if(self.parse()):
+                self.extractCounts()
+            else:
+                return
 
         x_digits = list(self.counts.keys())
         y_frequency = list(self.counts.values())
