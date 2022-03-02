@@ -15,8 +15,10 @@ logger.addHandler(consoleHandler)
 
 
 class CensusData:
-
-    NCOL = 6
+    """Class to parse and display the distribution of an input column of numbers, 
+    to verify if the data confirms to the Bernoff's law.
+    """
+    NUMBER_OF_COLUMNS = 6
     COL_OF_INTEREST = "7_2009"
 
     def __init__(self, file_to_read):
@@ -24,6 +26,8 @@ class CensusData:
         self.parse_done = False
 
     def parse(self):
+        """Parses the input Census data file and populates a pandas dataframe.
+        """
         n = 0
         self.good_data = []
         self.bad_data = []
@@ -39,7 +43,7 @@ class CensusData:
 
                 single_line = line.split("\t")
 
-                if len(single_line) == self.NCOL:
+                if len(single_line) == self.NUMBER_OF_COLUMNS:
                     self.good_data.append(single_line)
                 else:
                     self.bad_data.append(single_line)
@@ -50,6 +54,9 @@ class CensusData:
         self.parse_done = True
 
     def extractCounts(self):
+        """Builds a dictionary of counts for each of the 1 through 9, most significant
+        digits of the column being analysed.
+        """
         population_values = self.dataframe[self.COL_OF_INTEREST]
         self.counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
         for item in population_values:
@@ -58,7 +65,8 @@ class CensusData:
                     int(item[index]), 0) + 1
 
     def is_following_bernofs_law(self):
-        """Return True if ~80% of the given values are closer than a euclidean distance of .05"""
+        """Return True if ~80% of the given values are closer than a euclidean 
+        distance of .05"""
 
         x_digits = list(self.counts.keys())
         y_frequency = list(self.counts.values())
@@ -82,13 +90,21 @@ class CensusData:
                 threshold_counts.get(within_threshold, 0) + 1
             )
         """
-        # Return true if there are atleast 7 instances (out of 9) where the
+        # Return true if there are at least 7 instances (out of 9) where the
         # distribution is close to the logarithmic distribution pre-computed in y_frequency_2
         """
         return threshold_counts[False] < 3, distances
 
     @staticmethod
-    def generate_html(embed_plot):
+    def generate_html(embed_plot=False, follows_benfords_law=False):
+        """Generates a HTML doc with the Bernof's plot embeded in it and a string
+        indicating if the dataset follows Bernof's law.
+
+        Args:
+            embed_plot (bool, optional): If true, embeds the plot in the document. Defaults to False.
+            follows_benfords_law (bool, optional): Summarizes the conformity of
+            the input data to Bernof's law, based on the value of this parameter. Defaults to False.
+        """
         pre = """
             <!doctype html>
                 <html>
@@ -128,10 +144,24 @@ class CensusData:
             img_tag = '<img src="data:image/png;base64,{0}">'.format(data_uri)
             file.writelines(img_tag)
 
+            result_tag = '<p>The given dataset does NOT follow Benford\'s Law.</p>'
+            if(follows_benfords_law):
+                result_tag = '<p>The given dataset follows Benford\'s Law.</p>'
+            file.writelines(result_tag)
+
         file.writelines(post)
         file.close()
 
     def do_plot(self, x_digits, y_frequency, y_frequency_2):
+        """1. Generate a plot and save it to a file. 
+           2. Generate the HTML with the plot embedded in it.
+
+        Args:
+            x_digits (_type_): list of digits 1 through 9
+            y_frequency (_type_): Percentage occurrences of each digit in the parsed data.
+            y_frequency_2 (_type_): Percentage occurrences of each digit in a reference
+            dataset that shows the Bernof's distribution.
+        """
         plt.figure(figsize=(10, 5))
         plt.bar(x_digits, y_frequency, color="green", width=0.5)
         plt.plot(x_digits, y_frequency_2, color="red")
@@ -140,9 +170,12 @@ class CensusData:
         plt.title("Most Significant Digit distribution")
         plt.legend(['Benford\'s Law', os.path.basename(self.file_to_read)])
         plt.savefig("plot.png")
-        self.generate_html(True)
+        self.generate_html(True, self.is_following_bernofs_law())
 
     def generate_plot(self):
+        """Build two series; First one is the distribution of digit occurrences
+        Second one is a reference distribution that follows Bernof's theory.
+        """
         if self.parse_done is False:
             self.parse()
             self.extractCounts()
