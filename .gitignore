@@ -164,5 +164,8 @@ cython_debug/
 # Built Visual Studio Code Extensions
 *.vsix
 
+# Miscellaneous
 temp_data/**
 plot.png
+.DS_Store
+templates/.DS_Store
