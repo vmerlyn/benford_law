@@ -19,17 +19,17 @@ class CensusData:
     to verify if the data confirms to the Bernoff's law.
     """
     NUMBER_OF_COLUMNS = 6
-    COL_OF_INTEREST = "7_2009"
 
-    def __init__(self, file_to_read):
+    def __init__(self, file_to_read, column_name):
         self.file_to_read = file_to_read
         self.parse_done = False
+        self.column_of_interest = column_name
 
     def parse(self, write_to_db=False):
         """Parses the input Census data file and populates a pandas dataframe.
 
         Returns:
-            Boolean: True if parsed without errors.
+            Boolean: False if parsed with errors.
         """
         n = 0
         self.good_data = []
@@ -37,12 +37,15 @@ class CensusData:
 
         single_line = []
         header_columns = []
+        if(self.column_of_interest == ""):
+            return False
+
         with open(self.file_to_read) as file:
             for line in file:
                 n = n + 1
                 if n == 1:
                     header_columns = line.split("\t")
-                    if(len(header_columns) != self.NUMBER_OF_COLUMNS):
+                    if(self.column_of_interest not in header_columns):
                         return False
                     continue
 
@@ -54,7 +57,6 @@ class CensusData:
                     self.bad_data.append(single_line)
 
                 single_line = []
-
         self.dataframe = pd.DataFrame(self.good_data, columns=header_columns)
 
         # FIXME
@@ -91,7 +93,8 @@ class CensusData:
         """Builds a dictionary of counts for each of the 1 through 9, most significant
         digits of the column being analysed.
         """
-        population_values = self.dataframe[self.COL_OF_INTEREST]
+        logger.debug(self.column_of_interest)
+        population_values = self.dataframe[self.column_of_interest]
         self.counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}
         for item in population_values:
             for index in range(0, 1):
@@ -154,13 +157,15 @@ class CensusData:
                         the leading significant digit about 30% of the time, while 9 appears as 
                         the leading significant digit less than 5% of the time. </p>
                         <a href="https://en.wikipedia.org/wiki/Benford%27s_law"> -- Wikipedia Reference</a>
-                        <p>1. Select a TAB delimited file that contains a column of integer values under 
-                        the column heading <em>7_2009</em></p>
-                        <p>2. Select Plot to display the frequency distribution of the most 
-                        significant digits in the <em>7_2009</em> column.</p>
+                        <p>1. Select a TAB delimited file that contains a column of integer values under
+                            the a column and the data set has column headers.
+                        <p>2. Provide the column name in the Column of interest input field.</p>
+                        <p>3. Select Plot to display the frequency distribution of the most
+                            significant digits in the <em>7_2009</em> column.</p>
 
                         <form method="POST" action="" enctype="multipart/form-data">
                             <p><input type="file" name="file"></p>
+                            <p>Column of interest - <input type="text" name="col_name"></p>
                             <p><input type="submit" value="Plot"></p>
                         </form>
         """
@@ -202,7 +207,8 @@ class CensusData:
         plt.xlabel("Digits [1 to 9]")
         plt.ylabel("Frequency [%]")
         plt.title("Most Significant Digit distribution")
-        plt.legend(['Benford\'s Law', os.path.basename(self.file_to_read)])
+        plt.legend(['Benford\'s Law', os.path.basename(
+            self.file_to_read)+'/'+self.column_of_interest])
         plt.savefig("plot.png")
         self.generate_html(True, self.is_following_bernofs_law())
 

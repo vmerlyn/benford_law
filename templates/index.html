@@ -13,13 +13,15 @@
                         the leading significant digit about 30% of the time, while 9 appears as 
                         the leading significant digit less than 5% of the time. </p>
                         <a href="https://en.wikipedia.org/wiki/Benford%27s_law"> -- Wikipedia Reference</a>
-                        <p>1. Select a TAB delimited file that contains a column of integer values under 
-                        the column heading <em>7_2009</em></p>
-                        <p>2. Select Plot to display the frequency distribution of the most 
-                        significant digits in the <em>7_2009</em> column.</p>
+                        <p>1. Select a TAB delimited file that contains a column of integer values under
+                            the a column and the data set has column headers.
+                        <p>2. Provide the column name in the Column of interest input field.</p>
+                        <p>3. Select Plot to display the frequency distribution of the most
+                            significant digits in the <em>7_2009</em> column.</p>
 
                         <form method="POST" action="" enctype="multipart/form-data">
                             <p><input type="file" name="file"></p>
+                            <p>Column of interest - <input type="text" name="col_name"></p>
                             <p><input type="submit" value="Plot"></p>
                         </form>
         
