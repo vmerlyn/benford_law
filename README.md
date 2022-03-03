@@ -5,5 +5,13 @@ Ref - [Benford's law](https://en.wikipedia.org/wiki/Benford%27s_law)
 
 
 ## Running the app
+Using Docker -
   1. `docker build --tag flask-benford-app .`
   2. `docker run --name flask-benford-app -p 5001:5001 flask-benford-app`
+
+From the project root folder command line -
+
+*python app.py*
+
+## Running tests
+Run pytest from the project root folder. 

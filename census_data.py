@@ -57,8 +57,10 @@ class CensusData:
 
         self.dataframe = pd.DataFrame(self.good_data, columns=header_columns)
 
+        # FIXME
         # Persist in an in memory data store
         # Not fully implemented/tested.
+        # Is never executed in the current implementation
         if(write_to_db):
             import sqlite3
 
