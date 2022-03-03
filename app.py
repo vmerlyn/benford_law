@@ -24,6 +24,7 @@ def upload_file():
         uploaded_file.save(destination_file)
         data = CensusData(destination_file)
         data.generate_plot()
+        # FIXME
         # Adding this artificial delay to allow for the plot to finish generating
         # before we redirect to the base page and display the generated HTML.
         # NOT ideal. But only way to fix the occasional issue where the plots

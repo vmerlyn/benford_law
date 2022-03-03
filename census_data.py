@@ -25,7 +25,7 @@ class CensusData:
         self.file_to_read = file_to_read
         self.parse_done = False
 
-    def parse(self):
+    def parse(self, write_to_db=False):
         """Parses the input Census data file and populates a pandas dataframe.
 
         Returns:
@@ -56,6 +56,32 @@ class CensusData:
                 single_line = []
 
         self.dataframe = pd.DataFrame(self.good_data, columns=header_columns)
+
+        # Persist in an in memory data store
+        # Not fully implemented/tested.
+        if(write_to_db):
+            import sqlite3
+
+            conn = sqlite3.connect('test_database')
+            c = conn.cursor()
+            table_string = ""
+            for index in range(self.NUMBER_OF_COLUMNS-1):
+                table_string += "\"" + header_columns[index]+"\"" + " text,"
+            table_string += "\"" + \
+                header_columns[self.NUMBER_OF_COLUMNS-1]+"\""+" text"
+            table_string = "CREATE TABLE IF NOT EXISTS " + \
+                os.path.basename(self.file_to_read)+" ("+table_string+")"
+            print(table_string)
+            c.execute(table_string)
+            conn.commit()
+
+            c.execute('''  
+                SELECT * FROM ''' + os.path.basename(self.file_to_read)
+                      )
+
+            for row in c.fetchall():
+                print(row)
+
         self.parse_done = True
         return self.parse_done
 
