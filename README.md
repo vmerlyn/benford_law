@@ -5,13 +5,19 @@ Ref - [Benford's law](https://en.wikipedia.org/wiki/Benford%27s_law)
 
 
 ## Running the app
-Using Docker -
+With Docker -
+From the project root folder command line -
   1. `docker build --tag flask-benford-app .`
   2. `docker run --name flask-benford-app -p 5001:5001 flask-benford-app`
 
+Without Docker -
 From the project root folder command line -
+  1. `pip install -r requirements.txt`
+  2. `python app.py`
+  3. Paste the displayed url from the console, into a browser
 
-*python app.py*
+The current version only works for the file provided with this assignment. 
+A smaller version of this file is available in the tests\data folder. 
 
 ## Running tests
 Run pytest from the project root folder. 
